@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Productivity Simulator | Procrastination vs Focus</title>
+    <meta name="description"
+        content="A Reinforcement Learning based simulator to visualize the impact of habits on productivity.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Launcher / Selection Page -->
+        <div id="launcher-page" class="overlay">
+            <div class="launcher-content">
+                <div class="launcher-header">
+                    <i data-lucide="cpu" class="neon-icon large"></i>
+                    <h1>HABIT <span>AI</span></h1>
+                    <p class="subtitle">The Procrastination vs Productivity AI Simulator</p>
+                    <div class="project-about glass">
+                        <p><strong>HABIT AI</strong> is a Reinforcement Learning (RL) simulation platform designed to
+                            visualize the delicate balance between mental states and professional output. Using a
+                            human-like heuristic agent, it demonstrates how <strong>Energy</strong>,
+                            <strong>Motivation</strong>, and <strong>Workload</strong> interact to create long-term
+                            behavioral patterns.</p>
+                        <p>Watch how different "Personalities" respond to a simulated Monday-Friday work week, or take
+                            manual control to test your own productivity strategies.</p>
+                    </div>
+                    <p class="selection-prompt">Select a scenario to begin the weekly cycle:</p>
+                </div>
+
+                <div class="personality-grid">
+                    <div class="card glass personality-card" data-personality="incredible">
+                        <div class="icon text-lime"><i data-lucide="zap"></i></div>
+                        <h3>Elite Achiever</h3>
+                        <p>Disciplined, high energy, and hyper-focused. Rarely procrastinates.</p>
+                        <span class="badge badge-lime">Incredible Performance</span>
+                    </div>
+
+                    <div class="card glass personality-card" data-personality="average">
+                        <div class="icon text-cyan"><i data-lucide="user"></i></div>
+                        <h3>Balanced Professional</h3>
+                        <p>Standard work-life balance. Occasionally scrolls, but stays on track.</p>
+                        <span class="badge badge-cyan">Average Performance</span>
+                    </div>
+
+                    <div class="card glass personality-card" data-personality="poor">
+                        <div class="icon text-magenta"><i data-lucide="frown"></i></div>
+                        <h3>Chronic Procrastinator</h3>
+                        <p>Highly impulsive. Social media and exhaustion are constant hurdles.</p>
+                        <span class="badge badge-magenta">Poor Performance</span>
+                    </div>
+                </div>
+
+                <div class="launcher-footer">
+                    <button id="btn-team" class="btn btn-ghost">
+                        <i data-lucide="users"></i> Project Team
+                    </button>
+                    <div id="team-info" class="team-info hidden glass">
+                        <div class="member">
+                            <div class="member-name-row">
+                                <span class="name">Gaurav Mehra</span>
+                                <a href="https://gauravv.me" target="_blank" class="portfolio-link" title="Portfolio">
+                                    <i data-lucide="globe"></i>
+                                </a>
+                            </div>
+                            <span class="uid">1/23/SET/BCS/423</span>
+                        </div>
+                        <div class="member">
+                            <div class="member-name-row">
+                                <span class="name">Shivam Sharma</span>
+                                <a href="https://www.shivxmm.me" target="_blank" class="portfolio-link"
+                                    title="Portfolio">
+                                    <i data-lucide="globe"></i>
+                                </a>
+                            </div>
+                            <span class="uid">1/23/SET/BCS/424</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboard-view" class="blurred">
+            <header>
+                <div class="logo">
+                    <i data-lucide="cpu" class="neon-icon"></i>
+                    <h1>HABIT<span> AI</span></h1>
+                </div>
+                <div class="hud">
+                    <div class="hud-item">
+                        <span class="label">TIME:</span>
+                        <span id="sim-time" class="status-value text-white">Mon 09:00</span>
+                    </div>
+                    <div class="hud-item">
+                        <span class="label">STATUS:</span>
+                        <span id="agent-status" class="status-value text-cyan">Initializing...</span>
+                    </div>
+                    <div class="hud-item">
+                        <span class="label">REWARD:</span>
+                        <span id="total-reward" class="status-value text-magenta">0.00</span>
+                    </div>
+                    <div class="hud-item">
+                        <span class="label">HABIT SCORE:</span>
+                        <span id="habit-score" class="status-value text-lime">0%</span>
+                    </div>
+                </div>
+            </header>
+
+            <main>
+                <!-- Left Panel: States and Actions -->
+                <section class="control-panel">
+                    <div class="card glass">
+                        <h3><i data-lucide="bar-chart-2"></i> Internal States</h3>
+                        <div class="stats-container">
+                            <div class="stat-group">
+                                <div class="stat-header">
+                                    <span>Energy</span>
+                                    <span id="energy-val">0/10</span>
+                                </div>
+                                <div class="progress-bg">
+                                    <div id="energy-bar" class="progress-fill cyan-glow" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="stat-group">
+                                <div class="stat-header">
+                                    <span>Motivation</span>
+                                    <span id="motivation-val">0/10</span>
+                                </div>
+                                <div class="progress-bg">
+                                    <div id="motivation-bar" class="progress-fill magenta-glow" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="stat-group">
+                                <div class="stat-header">
+                                    <span>Workload</span>
+                                    <span id="workload-val">0/10</span>
+                                </div>
+                                <div class="progress-bg">
+                                    <div id="workload-bar" class="progress-fill lime-glow" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card glass actions-card">
+                        <h3><i data-lucide="play-circle"></i> Action Panel</h3>
+                        <div class="actions-grid">
+                            <button id="action-work" class="btn btn-primary">
+                                <i data-lucide="briefcase"></i> Work
+                            </button>
+                            <button id="action-rest" class="btn btn-secondary">
+                                <i data-lucide="battery-charging"></i> Rest
+                            </button>
+                            <button id="action-scroll" class="btn btn-danger">
+                                <i data-lucide="smartphone"></i> Scroll
+                            </button>
+                        </div>
+                        <div class="last-action">
+                            Last Action: <span id="last-action-text" class="text-white">-</span>
+                        </div>
+                    </div>
+
+                    <div class="card glass controls-card">
+                        <h3><i data-lucide="settings"></i> Simulation Controls</h3>
+                        <div class="controls-row">
+                            <button id="btn-auto" class="btn btn-outline">
+                                <i data-lucide="zap"></i> Start Training
+                            </button>
+                            <button id="btn-reset" class="btn btn-ghost">
+                                <i data-lucide="refresh-cw"></i> Reset
+                            </button>
+                        </div>
+                        <button id="btn-new-work" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem;">
+                            <i data-lucide="plus-circle"></i> Add New Tasks
+                        </button>
+                        <div class="speed-control" style="margin-top: 1rem;">
+                            <label for="speed-range">Sim Speed</label>
+                            <input type="range" id="speed-range" min="100" max="2000" step="100" value="1000">
+                        </div>
+                    </div>
+
+                    <div class="card glass log-card">
+                        <h3><i data-lucide="list"></i> Activity Log</h3>
+                        <div id="sim-log" class="log-container">
+                            <div class="log-entry">System ready...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Right Panel: Visualizations -->
+                <section class="viz-panel">
+                    <div class="card glass chart-card">
+                        <h3><i data-lucide="trending-up"></i> Productivity Over Time</h3>
+                        <div class="chart-container">
+                            <canvas id="productivity-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card glass chart-card">
+                        <h3><i data-lucide="activity"></i> Internal State Trends</h3>
+                        <div class="chart-container">
+                            <canvas id="trends-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card glass recap-card">
+                        <h3><i data-lucide="award"></i> Daily Insights</h3>
+                        <div id="daily-recap-content" class="recap-content">
+                            <div class="recap-placeholder">Day summary will appear here at 20:00...</div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- Weekly Report View (Hidden by default) -->
+        <div id="weekly-report" class="overlay hidden">
+            <div class="report-card glass">
+                <h2><i data-lucide="award"></i> Weekly Performance Report</h2>
+                <div class="report-grid">
+                    <div class="report-stat">
+                        <span class="label">Total Work Done</span>
+                        <span id="weekly-work" class="value text-lime">0</span>
+                    </div>
+                    <div class="report-stat">
+                        <span class="label">Final Habit Score</span>
+                        <span id="weekly-score" class="value text-cyan">0%</span>
+                    </div>
+                    <div class="report-stat">
+                        <span class="label">Total Reward</span>
+                        <span id="weekly-reward" class="value text-magenta">0.00</span>
+                    </div>
+                </div>
+                <div class="report-summary">
+                    <h3>Executive Summary</h3>
+                    <p id="weekly-summary-text">Analyzing performance...</p>
+                </div>
+                <button id="btn-restart" class="btn btn-primary">
+                    <i data-lucide="refresh-cw"></i> Restart Simulation
+                </button>
+            </div>
+        </div>
+
+        <div id="toast-container"></div>
+    </div>
+
+    <script src="js/simulator.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Initialize icons
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
