@@ -2,8 +2,11 @@
 
 A high-fidelity Reinforcement Learning (RL) simulation platform designed to visualize the impact of habits, mental states, and task management on long-term productivity.
 
+## 🚀 How to Deploy
+The project can be deployed to [Vercel](https://vercel.com) or any static hosting provider.
+
 ## 🚀 Live Demo
-The project can be deployed to [Vercel](https://habit-ai-two.vercel.app) or any static hosting provider.
+The project is already deployed @ [Habit AI](https://habit-ai-two.vercel.app)
 
 ## 🧠 Core Concept
 HABIT AI simulates a human-like agent navigating a Monday-Friday work week. The agent's decisions are influenced by:
